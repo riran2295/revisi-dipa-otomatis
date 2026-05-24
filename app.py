@@ -10,9 +10,16 @@ from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 # ==========================================
 st.set_page_config(page_title="revisi dipa otomatis", page_icon="🚀", layout="centered")
 
-# Injeksi CSS untuk merapikan Layout & Footer
+# Injeksi CSS untuk Background Full Space & Layout
 st.markdown("""
     <style>
+    /* Mengatur background agar mengisi seluruh ruang (Full Space) tanpa putus */
+    .stApp {
+        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        background-attachment: fixed;
+        background-size: cover;
+    }
+    
     /* Mengatur Judul dan Subjudul agar rata tengah */
     .title-text {
         text-align: center;
@@ -20,25 +27,27 @@ st.markdown("""
         font-size: 2.5rem;
         margin-top: 1rem;
         margin-bottom: 0.5rem;
+        color: #1e293b;
     }
     .subtitle-text {
         text-align: center;
-        color: #666666;
+        color: #475569;
         margin-bottom: 2rem;
     }
     
-    /* Mengatur Footer agar nempel di bawah */
+    /* Mengatur Footer agar nempel di bawah dan transparan rapi */
     .footer {
         position: fixed;
         left: 0;
         bottom: 0;
         width: 100%;
         background-color: transparent;
-        color: #888888;
+        color: #64748b;
         text-align: center;
         padding: 10px;
         font-size: 14px;
         z-index: 100;
+        font-weight: 500;
     }
     
     /* Menghilangkan padding atas bawaan Streamlit biar lebih rapi */
@@ -191,7 +200,6 @@ if proses_btn:
                     if jenis_satker == "Pusat": return "Pusat"
                     s = nama_satker.lower()
                     
-                    # Bypass teks eksplisit Provinsi
                     if "jawa timur" in s or "jatim" in s: return "Jawa Timur"
                     if "banten" in s: return "Banten"
                     if "dki jakarta" in s or "jakarta" in s: return "DKI Jakarta"
@@ -235,7 +243,7 @@ if proses_btn:
                         "Jambi": ["sungai penuh", "kerinci", "merangin", "sarolangun", "batanghari", "muaro jambi", "tanjung jabung", "tebo", "bungo"],
                         "Sumatera Selatan": ["palembang", "prabumulih", "lubuklinggau", "pagar alam", "banyuasin", "empat lawang", "lahat", "muara enim", "musi", "ogan", "penukal abab"],
                         "Bangka Belitung": ["pangkal pinang", "bangka", "belitung"],
-                        "Bengkulu": ["rejang lebong", "mukomuko", "kaur", "seluma", "kepahiang", "lebong"],
+                        "Bengkulu": ["rejang lebong", "mukomuko", "muko-muko", "kaur", "seluma", "kepahiang", "lebong"],
                         "Lampung": ["metro", "tulang bawang", "tanggamus", "way kanan", "pesawaran", "pringsewu", "mesuji", "pesisir barat"],
                         "Banten": ["tangerang", "serang", "cilegon", "pandeglang", "lebak"],
                         "DKI Jakarta": ["kepulauan seribu"],
@@ -253,13 +261,13 @@ if proses_btn:
                         "Kalimantan Utara": ["tarakan", "bulungan", "malinau", "nunukan", "tana tidung"],
                         "Sulawesi Utara": ["manado", "bitung", "tomohon", "kotamobagu", "bolaang", "minahasa", "sangihe", "talaud", "sitaro"],
                         "Gorontalo": ["boalemo", "bone bolango", "pohuwato"],
-                        "Sulawesi Tengah": ["palu", "banggai", "morowali", "poso", "donggala", "tolitoli", "buol", "parigi", "tojo", "sigi"],
+                        "Sulawesi Tengah": ["palu", "banggai", "morowali", "poso", "donggala", "tolitoli", "toli-toli", "buol", "parigi", "tojo", "sigi"],
                         "Sulawesi Barat": ["mamuju", "majene", "polewali mandar", "mamasa", "pasangkayu"],
-                        "Sulawesi Selatan": ["makassar", "parepare", "palopo", "bantaeng", "barru", "bone", "bulukumba", "enrekang", "gowa", "jeneponto", "selayar", "luwu", "maros", "pangkajene", "pinrang", "sidenreng", "sinjai", "soppeng", "takalar", "tana toraja", "wajo"],
+                        "Sulawesi Selatan": ["makassar", "parepare", "pare-pare", "palopo", "bantaeng", "barru", "bone", "bulukumba", "enrekang", "gowa", "jeneponto", "selayar", "luwu", "maros", "pangkajene", "pinrang", "sidenreng", "sinjai", "soppeng", "takalar", "tana toraja", "wajo"],
                         "Sulawesi Tenggara": ["kendari", "baubau", "bau-bau", "buton", "muna", "konawe", "kolaka", "bombana", "wakatobi"],
                         "Maluku": ["ambon", "tual", "buru", "seram", "aru", "tanimbar"],
                         "Maluku Utara": ["ternate", "tidore", "halmahera", "sula", "morotai", "taliabu"],
-                        "Papua": ["jayapura", "biak", "yapen", "waropen", "sarmi", "keerom", "merauke", "boven digoel", "mappi", "asmat", "nabire", "mimika", "paniai", "dogiyai", "intan jaya", "deiyai", "manokwari", "sorong", "raja ampat", "fakfak", "kaimana", "bintuni", "wondama", "tambrauw", "maybrat", "arfak", "jayawijaya", "bintang", "yahukimo", "tolikara", "mamberamo", "yalimo", "lanny jaya", "nduga", "puncak"]
+                        "Papua": ["jayapura", "biak", "yapen", "waropen", "sarmi", "keerom", "merauke", "boven digoel", "mappi", "asmat", "nabire", "mimika", "paniai", "dogiyai", "intan jaya", "deiyai", "manokwari", "sorong", "raja ampat", "fakfak", "fak-fak", "kaimana", "bintuni", "wondama", "tambrauw", "maybrat", "arfak", "jayawijaya", "bintang", "yahukimo", "tolikara", "mamberamo", "yalimo", "lanny jaya", "nduga", "puncak"]
                     }
                     
                     for provinsi, daftar_kota in kamus_wilayah.items():
