@@ -26,11 +26,16 @@ bg_base64 = get_base64_of_bin_file("bg.png")
 if bg_base64:
     bg_css = f"""
     <style>
+    /* Bikin background nyusun berulang (repeat) */
     .stApp {{
         background-image: url("data:image/png;base64,{bg_base64}");
-        background-size: cover;
-        background-position: center;
+        background-repeat: repeat;
         background-attachment: fixed;
+    }}
+    
+    /* Bikin header atas (tempat tombol share dll) tembus pandang */
+    header[data-testid="stHeader"] {{
+        background-color: transparent !important;
     }}
     """
 else:
@@ -41,6 +46,9 @@ else:
         background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
         background-attachment: fixed;
         background-size: cover;
+    }
+    header[data-testid="stHeader"] {
+        background-color: transparent !important;
     }
     """
 
