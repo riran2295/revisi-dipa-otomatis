@@ -2,6 +2,7 @@ import streamlit as st
 import pdfplumber
 import re
 import io
+import base64
 from openpyxl import Workbook
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 
@@ -10,17 +11,42 @@ from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 # ==========================================
 st.set_page_config(page_title="revisi dipa otomatis", page_icon="🚀", layout="centered")
 
-# Injeksi CSS untuk Background Full Space & Layout
-st.markdown("""
+# --- FUNGSI BACA GAMBAR JADI BACKGROUND ---
+def get_base64_of_bin_file(bin_file):
+    try:
+        with open(bin_file, 'rb') as f:
+            data = f.read()
+        return base64.b64encode(data).decode()
+    except Exception:
+        return None
+
+# Ubah bg.png jadi kode base64
+bg_base64 = get_base64_of_bin_file("bg.png")
+
+if bg_base64:
+    bg_css = f"""
     <style>
-    /* Mengatur background agar mengisi seluruh ruang (Full Space) tanpa putus */
+    .stApp {{
+        background-image: url("data:image/png;base64,{bg_base64}");
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+    }}
+    """
+else:
+    # Fallback kalau file bg.png ga ketemu
+    bg_css = """
+    <style>
     .stApp {
         background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
         background-attachment: fixed;
         background-size: cover;
     }
-    
-    /* Mengatur Judul dan Subjudul agar rata tengah */
+    """
+
+# Injeksi CSS Gabungan (Background + Layout)
+st.markdown(bg_css + """
+    /* Mengatur Judul dan Subjudul agar rata tengah dan pakai shadow biar kebaca */
     .title-text {
         text-align: center;
         font-weight: bold;
@@ -28,14 +54,16 @@ st.markdown("""
         margin-top: 1rem;
         margin-bottom: 0.5rem;
         color: #1e293b;
+        text-shadow: 1px 1px 3px rgba(255, 255, 255, 0.9);
     }
     .subtitle-text {
         text-align: center;
         color: #475569;
         margin-bottom: 2rem;
+        text-shadow: 1px 1px 3px rgba(255, 255, 255, 0.9);
     }
     
-    /* Mengatur Footer agar nempel di bawah dan transparan rapi */
+    /* Mengatur Footer agar nempel di bawah */
     .footer {
         position: fixed;
         left: 0;
@@ -47,7 +75,6 @@ st.markdown("""
         padding: 10px;
         font-size: 14px;
         z-index: 100;
-        font-weight: 500;
     }
     
     /* Menghilangkan padding atas bawaan Streamlit biar lebih rapi */
