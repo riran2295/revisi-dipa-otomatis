@@ -256,7 +256,7 @@ if proses_btn:
                         "Sulawesi Tengah": ["palu", "banggai", "morowali", "poso", "donggala", "tolitoli", "buol", "parigi", "tojo", "sigi"],
                         "Sulawesi Barat": ["mamuju", "majene", "polewali mandar", "mamasa", "pasangkayu"],
                         "Sulawesi Selatan": ["makassar", "parepare", "palopo", "bantaeng", "barru", "bone", "bulukumba", "enrekang", "gowa", "jeneponto", "selayar", "luwu", "maros", "pangkajene", "pinrang", "sidenreng", "sinjai", "soppeng", "takalar", "tana toraja", "wajo"],
-                        "Sulawesi Tenggara": ["kendari", "baubau", "buton", "muna", "konawe", "kolaka", "bombana", "wakatobi"],
+                        "Sulawesi Tenggara": ["kendari", "baubau", "bau-bau", "buton", "muna", "konawe", "kolaka", "bombana", "wakatobi"],
                         "Maluku": ["ambon", "tual", "buru", "seram", "aru", "tanimbar"],
                         "Maluku Utara": ["ternate", "tidore", "halmahera", "sula", "morotai", "taliabu"],
                         "Papua": ["jayapura", "biak", "yapen", "waropen", "sarmi", "keerom", "merauke", "boven digoel", "mappi", "asmat", "nabire", "mimika", "paniai", "dogiyai", "intan jaya", "deiyai", "manokwari", "sorong", "raja ampat", "fakfak", "kaimana", "bintuni", "wondama", "tambrauw", "maybrat", "arfak", "jayawijaya", "bintang", "yahukimo", "tolikara", "mamberamo", "yalimo", "lanny jaya", "nduga", "puncak"]
