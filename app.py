@@ -164,38 +164,42 @@ if proses_btn:
                             for baris in baris_teks:
                                 baris_upper = baris.upper()
                                 
-                                # 1. TANGKAP EKSPLISIT LEWAT HEADER "SATUAN KERJA" (Paling Kuat & Akurat)
-                                if "SATUAN KERJA" in baris_upper or "SATKER" in baris_upper:
+                                # 1. TANGKAP UNIT ORGANISASI (Fallback cerdas buat Ditjen Pusat kayak PSKP, PPTR)
+                                if "UNIT ORGANISASI" in baris_upper:
+                                    pecah = re.split(r'(?i)UNIT\s*ORGANISASI', baris)
+                                    nama_bersih = pecah[-1]
+                                    nama_bersih = re.sub(r'^[\s\:\-]*', '', nama_bersih)
+                                    nama_bersih = re.sub(r'^\(\w+\)\s*', '', nama_bersih)
+                                    nama_bersih = re.sub(r'^\d+[\s\.\-]*', '', nama_bersih).strip()
+                                    if nama_bersih:
+                                        satker_aktif = nama_bersih
+                                        jenis_satker = "Pusat"
+                                    continue
+
+                                # 2. TANGKAP SATUAN KERJA (Prioritas Utama, bakal nimpa Unit Organisasi di atas kalau ada)
+                                elif "SATUAN KERJA" in baris_upper or "SATKER" in baris_upper:
                                     pecah = re.split(r'(?i)SATUAN\s*KERJA|SATKER', baris)
                                     nama_bersih = pecah[-1]
                                     nama_bersih = re.sub(r'^[\s\:\-]*', '', nama_bersih)
-                                    nama_bersih = re.sub(r'^\(\d+\)\s*', '', nama_bersih)
+                                    nama_bersih = re.sub(r'^\(\w+\)\s*', '', nama_bersih)
                                     nama_bersih = re.sub(r'^\d+[\s\.\-]*', '', nama_bersih).strip()
                                     
                                     if nama_bersih:
                                         satker_aktif = nama_bersih
-                                        # Deteksi apakah ini Kantor Daerah atau Pusat berdasarkan namanya
                                         if any(kw in satker_aktif.upper() for kw in ["KANTOR PERTANAHAN", "KANTAH", "KANTOR WILAYAH", "KANWIL"]):
                                             jenis_satker = "Daerah"
                                         else:
                                             jenis_satker = "Pusat"
-                                        continue
-
-                                # 2. FALLBACK HIRARKI DAERAH (Jika format PDF tidak ada tulisan Satuan Kerja)
-                                elif any(kw in baris_upper for kw in ["KANTOR PERTANAHAN", "KANTAH", "KANTOR WILAYAH", "KANWIL"]):
-                                    nama_bersih = baris
-                                    nama_bersih = re.sub(r'^\d+[\s\.\-]*', '', nama_bersih)       
-                                    satker_aktif = nama_bersih.strip()
-                                    jenis_satker = "Daerah" 
                                     continue
 
-                                # 3. FALLBACK HIRARKI PUSAT SPESIFIK
-                                elif any(kw in baris_upper for kw in ["BIRO ", "BPSDM", "BADAN PENGEMBANGAN SUMBER DAYA MANUSIA", "SEKOLAH TINGGI PERTANAHAN", "STPN", "DIREKTORAT", "DITJEN", "INSPEKTORAT", "PSKP", "PPTR", "PHPT"]):
-                                    if "UNIT ORGANISASI" not in baris_upper and "KEMENTERIAN" not in baris_upper:
-                                        nama_bersih = re.sub(r'^\d+[\s\.\-]*', '', baris).strip()
-                                        satker_aktif = nama_bersih
-                                        jenis_satker = "Pusat" 
-                                        continue
+                                # 3. FALLBACK KHUSUS (Kalau barisnya bener-bener gak ada label kepalanya)
+                                elif any(kw in baris_upper for kw in ["KANTOR PERTANAHAN", "KANTAH", "KANTOR WILAYAH", "KANWIL"]):
+                                    if satker_aktif == "Belum dapet Satker" or jenis_satker == "Pusat":
+                                        nama_bersih = baris
+                                        nama_bersih = re.sub(r'^\d+[\s\.\-]*', '', nama_bersih)       
+                                        satker_aktif = nama_bersih.strip()
+                                        jenis_satker = "Daerah" 
+                                    continue
 
                                 kro_match = re.search(r'^(\d{4}\.[A-Z]{3})', baris)
                                 if kro_match:
