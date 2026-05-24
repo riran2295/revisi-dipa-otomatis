@@ -52,42 +52,62 @@ else:
     }
     """
 
-# Injeksi CSS Gabungan (Background + Layout)
+# Injeksi CSS Gabungan (UI Premium & Glassmorphism)
 st.markdown(bg_css + """
-    /* Mengatur Judul dan Subjudul agar rata tengah dan pakai shadow biar kebaca */
+    <style>
+    /* BUNGKUSAN UTAMA: Efek Kartu Putih Semi-Transparan (Glassmorphism) */
+    .block-container {
+        background-color: rgba(255, 255, 255, 0.90); /* Putih dengan transparansi 90% */
+        padding: 3rem 2rem !important;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15); /* Bayangan lembut di sekeliling kartu */
+        margin-top: 2rem;
+        margin-bottom: 5rem;
+    }
+
+    /* Mengatur Judul dan Subjudul agar kontras dan elegan */
     .title-text {
         text-align: center;
-        font-weight: bold;
-        font-size: 2.5rem;
+        font-weight: 800;
+        font-size: 2.2rem;
         margin-top: 1rem;
         margin-bottom: 0.5rem;
-        color: #1e293b;
-        text-shadow: 1px 1px 3px rgba(255, 255, 255, 0.9);
+        color: #0f172a; /* Biru dongker gelap tegas */
     }
     .subtitle-text {
         text-align: center;
-        color: #475569;
+        color: #475569; /* Abu-abu kebiruan */
         margin-bottom: 2rem;
-        text-shadow: 1px 1px 3px rgba(255, 255, 255, 0.9);
+        font-weight: 500;
     }
     
-    /* Mengatur Footer agar nempel di bawah */
+    /* CUSTOM KOTAK UPLOAD: Biar lebih kelihatan dan beda dari background kartu */
+    div[data-testid="stFileUploadDropzone"] {
+        background-color: #f8fafc;
+        border: 2px dashed #94a3b8;
+        border-radius: 12px;
+        padding: 20px;
+        transition: all 0.3s ease;
+    }
+    div[data-testid="stFileUploadDropzone"]:hover {
+        border-color: #3b82f6;
+        background-color: #eff6ff;
+    }
+    
+    /* Mengatur Footer: Dikasih bar gelap transparan biar teksnya selalu kebaca */
     .footer {
         position: fixed;
         left: 0;
         bottom: 0;
         width: 100%;
-        background-color: transparent;
-        color: #64748b;
+        background-color: rgba(15, 23, 42, 0.85); /* Bar gelap dongker */
+        backdrop-filter: blur(5px); /* Efek blur di belakang bar */
+        color: #f8fafc;
         text-align: center;
-        padding: 10px;
-        font-size: 14px;
+        padding: 12px;
+        font-size: 13px;
         z-index: 100;
-    }
-    
-    /* Menghilangkan padding atas bawaan Streamlit biar lebih rapi */
-    .block-container {
-        padding-top: 2rem;
+        letter-spacing: 1px;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -110,7 +130,7 @@ st.markdown('<div class="subtitle-text">Upload puluhan file PDF Matriks Perubaha
 # LOGIKA UTAMA APLIKASI
 # ==========================================
 
-col_up1, col_up2, col_up3 = st.columns([1, 6, 1])
+col_up1, col_up2, col_up3 = st.columns([1, 8, 1])
 with col_up2:
     uploaded_files = st.file_uploader("Upload File PDF Matriks (Bisa pilih banyak file)", type=["pdf"], accept_multiple_files=True)
 
