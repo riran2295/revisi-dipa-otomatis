@@ -124,7 +124,6 @@ with col_logo2:
 
 st.markdown('<div class="title-text">Automasi Reviu Revisi DIPA</div>', unsafe_allow_html=True)
 st.markdown('<div class="subtitle-text">Upload puluhan file PDF Matriks Perubahan sekaligus, sistem akan otomatis mengekstrak selisih KRO dan meng-generate Kertas Kerja Excel.</div>', unsafe_allow_html=True)
-st.markdown('<div class="subtitle-text">Hanya untuk file PDF Matriks Perubahan format 1 yang bukan hasil scan.</div>', unsafe_allow_html=True)
 
 
 # ==========================================
@@ -173,8 +172,8 @@ if proses_btn:
                                     jenis_satker = "Daerah" 
                                     continue
 
-                                # HIRARKI PUSAT
-                                elif any(kw in baris_upper for kw in ["BIRO ", "BPSDM", "BADAN PENGEMBANGAN SUMBER DAYA MANUSIA", "SEKOLAH TINGGI PERTANAHAN", "STPN"]):
+                                # HIRARKI PUSAT (Sudah ditambah Ditjen, Inspektorat, PSKP, PPTR, PHPT)
+                                elif any(kw in baris_upper for kw in ["BIRO ", "BPSDM", "BADAN PENGEMBANGAN SUMBER DAYA MANUSIA", "SEKOLAH TINGGI PERTANAHAN", "STPN", "DIREKTORAT", "DITJEN", "INSPEKTORAT", "PSKP", "PPTR", "PHPT"]):
                                     if "UNIT ORGANISASI" not in baris_upper and "KEMENTERIAN" not in baris_upper:
                                         nama_bersih = re.sub(r'^\d+[\s\.\-]*', '', baris).strip()
                                         satker_aktif = nama_bersih
