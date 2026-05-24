@@ -124,6 +124,7 @@ with col_logo2:
 
 st.markdown('<div class="title-text">Automasi Reviu Revisi DIPA</div>', unsafe_allow_html=True)
 st.markdown('<div class="subtitle-text">Upload puluhan file PDF Matriks Perubahan sekaligus, sistem akan otomatis mengekstrak selisih KRO dan meng-generate Kertas Kerja Excel.</div>', unsafe_allow_html=True)
+st.markdown('<div class="subtitle-text">Hanya untuk file PDF Matriks Perubahan format 1 yang bukan hasil scan.</div>', unsafe_allow_html=True)
 
 
 # ==========================================
