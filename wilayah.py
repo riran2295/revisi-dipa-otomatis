@@ -4,7 +4,7 @@ def tentukan_wilayah(nama_satker, jenis_satker):
     if jenis_satker == "Pusat": return "Pusat"
     s = nama_satker.lower()
     
-    # Deteksi cepat kata kunci provinsi langsung
+    # Deteksi cepat kata kunci provinsi (Papua Barat harus di atas Papua)
     if "jawa timur" in s or "jatim" in s: return "Jawa Timur"
     if "banten" in s: return "Banten"
     if "dki jakarta" in s or "jakarta" in s: return "DKI Jakarta"
@@ -37,9 +37,10 @@ def tentukan_wilayah(nama_satker, jenis_satker):
     if "sulawesi tenggara" in s or "sultra" in s: return "Sulawesi Tenggara"
     if "maluku utara" in s or "malut" in s: return "Maluku Utara"
     if "maluku" in s: return "Maluku"
+    if "papua barat" in s: return "Papua Barat"
     if "papua" in s: return "Papua"
 
-    # KAMUS DETAIL KOTA/KABUPATEN SE-INDONESIA
+    # KAMUS DETAIL KOTA/KABUPATEN
     kamus_wilayah = {
         "Aceh": ["sabang", "lhokseumawe", "langsa", "subulussalam", "simeulue", "pidie", "bireuen", "gayo lues", "nagan raya", "bener meriah", "aceh"],
         "Sumatera Utara": ["medan", "binjai", "tebing tinggi", "pematang siantar", "tanjung balai", "sibolga", "padangsidimpuan", "nias", "mandailing natal", "tapanuli", "karo", "deli serdang", "langkat", "asahan", "labuhanbatu", "dairi", "toba", "samosir", "humbang hasundutan", "pakpak bharat", "simalungun", "batu bara", "padang lawas"],
@@ -73,12 +74,17 @@ def tentukan_wilayah(nama_satker, jenis_satker):
         "Sulawesi Tenggara": ["kendari", "baubau", "bau-bau", "buton", "muna", "konawe", "kolaka", "bombana", "wakatobi"],
         "Maluku": ["ambon", "tual", "buru", "seram", "aru", "tanimbar"],
         "Maluku Utara": ["ternate", "tidore", "halmahera", "sula", "morotai", "taliabu"],
-        "Papua": ["jayapura", "biak", "yapen", "waropen", "sarmi", "keerom", "merauke", "boven digoel", "mappi", "asmat", "nabire", "mimika", "paniai", "dogiyai", "intan jaya", "deiyai", "manokwari", "sorong", "raja ampat", "fakfak", "fak-fak", "kaimana", "bintuni", "wondama", "tambrauw", "maybrat", "arfak", "jayawijaya", "bintang", "yahukimo", "tolikara", "mamberamo", "yalimo", "lanny jaya", "nduga", "puncak"]
+        # DIKUNCI SEMUA VARIAN FAK FAK NYA
+        "Papua Mall": ["fak-fak", "fak fak", "fakfak"], 
+        "Papua Barat": ["manokwari", "sorong", "raja ampat", "fak-fak", "fak fak", "fakfak", "kaimana", "bintuni", "wondama", "tambrauw", "maybrat", "arfak"],
+        "Papua": ["jayapura", "biak", "yapen", "waropen", "sarmi", "keerom", "merauke", "boven digoel", "mappi", "asmat", "nabire", "mimika", "paniai", "dogiyai", "intan jaya", "deiyai", "jayawijaya", "bintang", "yahukimo", "tolikara", "mamberamo", "yalimo", "lanny jaya", "nduga", "puncak"]
     }
     
     for provinsi, daftar_kota in kamus_wilayah.items():
         for kota in daftar_kota:
-            if re.search(fr'\b{re.escape(kota)}\b', s): return provinsi
+            if re.search(fr'\b{re.escape(kota)}\b', s):
+                # Kembalikan nama resmi provinsi yang benar jika masuk varian fak-fak
+                return "Papua Barat" if provinsi == "Papua Mall" else provinsi
                 
     if "prov." in s: return s.split("prov.")[1].strip().title()
     if "provinsi " in s: return s.split("provinsi ")[1].strip().title()
