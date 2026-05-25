@@ -5,6 +5,8 @@ import io
 import base64
 from openpyxl import Workbook
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+# IMPORT KAMUS WILAYAH DARI FILE BERBEDA
+from wilayah import tentukan_wilayah
 
 # ==========================================
 # KONFIGURASI DNS & HALAMAN
@@ -26,20 +28,17 @@ bg_base64 = get_base64_of_bin_file("bg.png")
 if bg_base64:
     bg_css = f"""
     <style>
-    /* Bikin background nyusun berulang (repeat) */
     .stApp {{
         background-image: url("data:image/png;base64,{bg_base64}");
         background-repeat: repeat;
         background-attachment: fixed;
     }}
-    
-    /* Bikin header atas (tempat tombol share dll) tembus pandang */
     header[data-testid="stHeader"] {{
         background-color: transparent !important;
     }}
+    </style>
     """
 else:
-    # Fallback kalau file bg.png ga ketemu
     bg_css = """
     <style>
     .stApp {
@@ -50,38 +49,34 @@ else:
     header[data-testid="stHeader"] {
         background-color: transparent !important;
     }
+    </style>
     """
 
 # Injeksi CSS Gabungan (UI Premium & Glassmorphism)
 st.markdown(bg_css + """
     <style>
-    /* BUNGKUSAN UTAMA: Efek Kartu Putih Semi-Transparan (Glassmorphism) */
     .block-container {
-        background-color: rgba(255, 255, 255, 0.90); /* Putih dengan transparansi 90% */
+        background-color: rgba(255, 255, 255, 0.90);
         padding: 3rem 2rem !important;
         border-radius: 20px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15); /* Bayangan lembut di sekeliling kartu */
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
         margin-top: 2rem;
         margin-bottom: 5rem;
     }
-
-    /* Mengatur Judul dan Subjudul agar kontras dan elegan */
     .title-text {
         text-align: center;
         font-weight: 800;
         font-size: 2.2rem;
         margin-top: 1rem;
         margin-bottom: 0.5rem;
-        color: #0f172a; /* Biru dongker gelap tegas */
+        color: #0f172a;
     }
     .subtitle-text {
         text-align: center;
-        color: #475569; /* Abu-abu kebiruan */
+        color: #475569;
         margin-bottom: 2rem;
         font-weight: 500;
     }
-    
-    /* CUSTOM KOTAK UPLOAD: Biar lebih kelihatan dan beda dari background kartu */
     div[data-testid="stFileUploadDropzone"] {
         background-color: #f8fafc;
         border: 2px dashed #94a3b8;
@@ -93,15 +88,13 @@ st.markdown(bg_css + """
         border-color: #3b82f6;
         background-color: #eff6ff;
     }
-    
-    /* Mengatur Footer: Dikasih bar gelap transparan biar teksnya selalu kebaca */
     .footer {
         position: fixed;
         left: 0;
         bottom: 0;
         width: 100%;
-        background-color: rgba(15, 23, 42, 0.85); /* Bar gelap dongker */
-        backdrop-filter: blur(5px); /* Efek blur di belakang bar */
+        background-color: rgba(15, 23, 42, 0.85);
+        backdrop-filter: blur(5px);
         color: #f8fafc;
         text-align: center;
         padding: 12px;
@@ -124,13 +117,10 @@ with col_logo2:
 
 st.markdown('<div class="title-text">Automasi Reviu Revisi DIPA</div>', unsafe_allow_html=True)
 st.markdown('<div class="subtitle-text">Upload puluhan file PDF Matriks Perubahan sekaligus, sistem akan otomatis mengekstrak selisih KRO dan meng-generate Kertas Kerja Excel.</div>', unsafe_allow_html=True)
-st.markdown('<div class="subtitle-text">Hanya untuk file PDF Matriks Perubahan Format 1 dan bukan hasil scan.</div>', unsafe_allow_html=True)
-
 
 # ==========================================
 # LOGIKA UTAMA APLIKASI
 # ==========================================
-
 col_up1, col_up2, col_up3 = st.columns([1, 8, 1])
 with col_up2:
     uploaded_files = st.file_uploader("Upload File PDF Matriks (Bisa pilih banyak file)", type=["pdf"], accept_multiple_files=True)
@@ -166,55 +156,44 @@ if proses_btn:
                             for baris in baris_teks:
                                 baris_upper = baris.upper()
                                 
-                                # 1. TANGKAP UNIT ORGANISASI (Bisa nangkap Ditjen dll)
                                 if "UNIT ORGANISASI" in baris_upper:
                                     pecah = re.split(r'(?i)UNIT\s*ORGANISASI', baris)
-                                    nama_bersih = pecah[-1]
-                                    nama_bersih = re.sub(r'^[\s\:\-]*', '', nama_bersih)
-                                    nama_bersih = re.sub(r'^\(\w+\)\s*', '', nama_bersih)
-                                    unit_org = re.sub(r'^\d+[\s\.\-]*', '', nama_bersih).strip()
+                                    nama_clean = re.sub(r'^[\s\:\-]*', '', pecah[-1])
+                                    nama_clean = re.sub(r'^\(\w+\)\s*', '', nama_clean)
+                                    unit_org = re.sub(r'^\d+[\s\.\-]*', '', nama_clean).strip()
                                     
                                     if satker_aktif == "Belum dapet Satker" or "KEMENTERIAN" in satker_aktif.upper():
                                         satker_aktif = unit_org
                                         jenis_satker = "Pusat"
                                     continue
 
-                                # 2. TANGKAP SATUAN KERJA (Dengan proteksi anti-Kementerian)
                                 elif "SATUAN KERJA" in baris_upper or "SATKER" in baris_upper:
                                     pecah = re.split(r'(?i)SATUAN\s*KERJA|SATKER', baris)
-                                    nama_bersih = pecah[-1]
-                                    nama_bersih = re.sub(r'^[\s\:\-]*', '', nama_bersih)
-                                    nama_bersih = re.sub(r'^\(\w+\)\s*', '', nama_bersih)
-                                    nama_bersih = re.sub(r'^\d+[\s\.\-]*', '', nama_bersih).strip()
+                                    nama_clean = re.sub(r'^[\s\:\-]*', '', pecah[-1])
+                                    nama_clean = re.sub(r'^\(\w+\)\s*', '', nama_clean)
+                                    nama_clean = re.sub(r'^\d+[\s\.\-]*', '', nama_clean).strip()
                                     
-                                    if nama_bersih:
-                                        if ("KEMENTERIAN" in nama_bersih.upper() or "KEMEN" in nama_bersih.upper()) and unit_org != "":
+                                    if nama_clean:
+                                        if ("KEMENTERIAN" in nama_clean.upper() or "KEMEN" in nama_clean.upper()) and unit_org != "":
                                             satker_aktif = unit_org
                                             jenis_satker = "Pusat"
                                         else:
-                                            satker_aktif = nama_bersih
+                                            satker_aktif = nama_clean
                                             if any(kw in satker_aktif.upper() for kw in ["KANTOR PERTANAHAN", "KANTAH", "KANTOR WILAYAH", "KANWIL"]):
                                                 jenis_satker = "Daerah"
                                             else:
                                                 jenis_satker = "Pusat"
                                     continue
 
-                                # 3. JARING PENANGKAP DARURAT PUSAT (Kalau nggak ada tulisan Satker/Unit Org)
                                 elif any(kw in baris_upper for kw in ["DIREKTORAT", "DITJEN", "INSPEKTORAT", "SEKRETARIAT", "BADAN ", "BPSDM", "BIRO ", "STPN", "PUSAT"]):
-                                    # Pastikan bukan baris kementerian dan belum ada nama yang proper
                                     if "KEMENTERIAN" not in baris_upper and (satker_aktif == "Belum dapet Satker" or "KEMENTERIAN" in satker_aktif.upper()):
-                                        nama_bersih = baris
-                                        nama_bersih = re.sub(r'^\d+[\s\.\-]*', '', nama_bersih)       
-                                        satker_aktif = nama_bersih.strip()
+                                        satker_aktif = re.sub(r'^\d+[\s\.\-]*', '', baris).strip()
                                         jenis_satker = "Pusat" 
                                     continue
 
-                                # 4. JARING PENANGKAP DARURAT DAERAH (Kalau nggak ada tulisan Satker/Unit Org)
                                 elif any(kw in baris_upper for kw in ["KANTOR PERTANAHAN", "KANTAH", "KANTOR WILAYAH", "KANWIL"]):
                                     if satker_aktif == "Belum dapet Satker" or "KEMENTERIAN" in satker_aktif.upper() or jenis_satker == "Pusat":
-                                        nama_bersih = baris
-                                        nama_bersih = re.sub(r'^\d+[\s\.\-]*', '', nama_bersih)       
-                                        satker_aktif = nama_bersih.strip()
+                                        satker_aktif = re.sub(r'^\d+[\s\.\-]*', '', baris).strip()
                                         jenis_satker = "Daerah" 
                                     continue
 
@@ -288,89 +267,6 @@ if proses_btn:
                     cell.alignment = center_align
                     cell.border = border_tipis
 
-                # --- DATABASE PROVINSI LENGKAP SE-INDONESIA ---
-                def tentukan_wilayah(nama_satker, jenis_satker):
-                    if jenis_satker == "Pusat": return "Pusat"
-                    s = nama_satker.lower()
-                    
-                    if "jawa timur" in s or "jatim" in s: return "Jawa Timur"
-                    if "banten" in s: return "Banten"
-                    if "dki jakarta" in s or "jakarta" in s: return "DKI Jakarta"
-                    if "jawa barat" in s or "jabar" in s: return "Jawa Barat"
-                    if "jawa tengah" in s or "jateng" in s: return "Jawa Tengah"
-                    if "sumatera barat" in s or "sumbar" in s: return "Sumatera Barat"
-                    if "nusa tenggara timur" in s or "ntt" in s: return "Nusa Tenggara Timur"
-                    if "bengkulu" in s: return "Bengkulu"
-                    if "aceh" in s: return "Aceh"
-                    if "sumatera utara" in s or "sumut" in s: return "Sumatera Utara"
-                    if "riau" in s: return "Riau"
-                    if "kepulauan riau" in s or "kepri" in s: return "Kepulauan Riau"
-                    if "jambi" in s: return "Jambi"
-                    if "sumatera selatan" in s or "sumsel" in s: return "Sumatera Selatan"
-                    if "bangka belitung" in s or "babel" in s: return "Bangka Belitung"
-                    if "lampung" in s: return "Lampung"
-                    if "di yogyakarta" in s or "diy" in s or "jogja" in s: return "DI Yogyakarta"
-                    if "bali" in s: return "Bali"
-                    if "nusa tenggara barat" in s or "ntb" in s: return "Nusa Tenggara Barat"
-                    if "kalimantan barat" in s or "kalbar" in s: return "Kalimantan Barat"
-                    if "kalimantan tengah" in s or "kalteng" in s: return "Kalimantan Tengah"
-                    if "kalimantan selatan" in s or "kalsel" in s: return "Kalimantan Selatan"
-                    if "kalimantan timur" in s or "kaltim" in s: return "Kalimantan Timur"
-                    if "kalimantan utara" in s or "kaltara" in s: return "Kalimantan Utara"
-                    if "sulawesi utara" in s or "sulut" in s: return "Sulawesi Utara"
-                    if "gorontalo" in s: return "Gorontalo"
-                    if "sulawesi tengah" in s or "sulteng" in s: return "Sulawesi Tengah"
-                    if "sulawesi barat" in s or "sulbar" in s: return "Sulawesi Barat"
-                    if "sulawesi selatan" in s or "sulsel" in s: return "Sulawesi Selatan"
-                    if "sulawesi tenggara" in s or "sultra" in s: return "Sulawesi Tenggara"
-                    if "maluku utara" in s or "malut" in s: return "Maluku Utara"
-                    if "maluku" in s: return "Maluku"
-                    if "papua" in s: return "Papua"
-
-                    kamus_wilayah = {
-                        "Aceh": ["sabang", "lhokseumawe", "langsa", "subulussalam", "simeulue", "pidie", "bireuen", "gayo lues", "nagan raya", "bener meriah", "aceh"],
-                        "Sumatera Utara": ["medan", "binjai", "tebing tinggi", "pematang siantar", "tanjung balai", "sibolga", "padangsidimpuan", "nias", "mandailing natal", "tapanuli", "karo", "deli serdang", "langkat", "asahan", "labuhanbatu", "dairi", "toba", "samosir", "humbang hasundutan", "pakpak bharat", "simalungun", "batu bara", "padang lawas"],
-                        "Sumatera Barat": ["padang", "bukittinggi", "payakumbuh", "solok", "sawahlunto", "pariaman", "pasaman", "agam", "lima puluh kota", "tanah datar", "sijunjung", "dharmasraya", "pesisir selatan", "mentawai"],
-                        "Riau": ["pekanbaru", "dumai", "kampar", "rokan", "bengkalis", "siak", "pelalawan", "indragiri", "kuantan singingi", "meranti"],
-                        "Kepulauan Riau": ["batam", "tanjung pinang", "bintan", "karimun", "natuna", "anambas", "lingga"],
-                        "Jambi": ["sungai penuh", "kerinci", "merangin", "sarolangun", "batanghari", "muaro jambi", "tanjung jabung", "tebo", "bungo"],
-                        "Sumatera Selatan": ["palembang", "prabumulih", "lubuklinggau", "pagar alam", "banyuasin", "empat lawang", "lahat", "muara enim", "musi", "ogan", "penukal abab"],
-                        "Bangka Belitung": ["pangkal pinang", "bangka", "belitung"],
-                        "Bengkulu": ["rejang lebong", "mukomuko", "muko-muko", "kaur", "seluma", "kepahiang", "lebong"],
-                        "Lampung": ["metro", "tulang bawang", "tanggamus", "way kanan", "pesawaran", "pringsewu", "mesuji", "pesisir barat"],
-                        "Banten": ["tangerang", "serang", "cilegon", "pandeglang", "lebak"],
-                        "DKI Jakarta": ["kepulauan seribu"],
-                        "Jawa Barat": ["bandung", "bogor", "depok", "bekasi", "cimahi", "sukabumi", "cianjur", "garut", "tasikmalaya", "cirebon", "kuningan", "majalengka", "sumedang", "indramayu", "subang", "purwakarta", "karawang", "pangandaran", "banjar"],
-                        "Jawa Tengah": ["semarang", "surakarta", "solo", "salatiga", "tegal", "pekalongan", "banyumas", "cilacap", "purbalingga", "banjarnegara", "kebumen", "purworejo", "wonosobo", "boyolali", "klaten", "sukoharjo", "wonogiri", "karanganyar", "sragen", "grobogan", "blora", "rembang", "pati", "kudus", "jepara", "demak", "temanggung", "kendal", "batang", "pemalang", "brebes"],
-                        "DI Yogyakarta": ["sleman", "bantul", "gunungkidul", "kulon progo"],
-                        "Jawa Timur": ["sumenep", "bangkalan", "surabaya", "malang", "pacitan", "ponorogo", "situbondo", "lumajang", "blitar", "mojokerto", "sidoarjo", "gresik", "banyuwangi", "jember", "kediri", "tuban", "bojonegoro", "ngawi", "magetan", "madiun", "nganjuk", "trenggalek", "tulungagung", "jombang", "pasuruan", "probolinggo", "bondowoso", "lamongan", "pamekasan", "sampang", "batu"],
-                        "Bali": ["denpasar", "badung", "bangli", "buleleng", "gianyar", "jembrana", "karangasem", "klungkung", "tabanan"],
-                        "Nusa Tenggara Barat": ["mataram", "bima", "lombok", "sumbawa", "dompu"],
-                        "Nusa Tenggara Timur": ["kupang", "alor", "belu", "ende", "flores", "lembata", "manggarai", "ngada", "nagekeo", "rote", "sabu", "sikka", "sumba", "timor"],
-                        "Kalimantan Barat": ["pontianak", "singkawang", "sambas", "mempawah", "sanggau", "ketapang", "sintang", "kapuas hulu", "sekadau", "melawi", "kayong utara", "kubu raya"],
-                        "Kalimantan Tengah": ["palangka raya", "kotawaringin", "kapuas", "barito", "katingan", "seruyan", "sukamara", "lamandau", "gunung mas", "pulang pisau", "murung raya"],
-                        "Kalimantan Selatan": ["banjarmasin", "banjarbaru", "tanah laut", "kotabaru", "banjar", "tapin", "hulu sungai", "tabalong", "tanah bumbu", "balangan"],
-                        "Kalimantan Timur": ["samarinda", "balikpapan", "bontang", "paser", "kutai", "berau", "penajam", "mahakam"],
-                        "Kalimantan Utara": ["tarakan", "bulungan", "malinau", "nunukan", "tana tidung"],
-                        "Sulawesi Utara": ["manado", "bitung", "tomohon", "kotamobagu", "bolaang", "minahasa", "sangihe", "talaud", "sitaro"],
-                        "Gorontalo": ["boalemo", "bone bolango", "pohuwato"],
-                        "Sulawesi Tengah": ["palu", "banggai", "morowali", "poso", "donggala", "tolitoli", "toli-toli", "buol", "parigi", "tojo", "sigi"],
-                        "Sulawesi Barat": ["mamuju", "majene", "polewali mandar", "mamasa", "pasangkayu"],
-                        "Sulawesi Selatan": ["makassar", "parepare", "pare-pare", "palopo", "bantaeng", "barru", "bone", "bulukumba", "enrekang", "gowa", "jeneponto", "selayar", "luwu", "maros", "pangkajene", "pinrang", "sidenreng", "sinjai", "soppeng", "takalar", "tana toraja", "wajo"],
-                        "Sulawesi Tenggara": ["kendari", "baubau", "bau-bau", "buton", "muna", "konawe", "kolaka", "bombana", "wakatobi"],
-                        "Maluku": ["ambon", "tual", "buru", "seram", "aru", "tanimbar"],
-                        "Maluku Utara": ["ternate", "tidore", "halmahera", "sula", "morotai", "taliabu"],
-                        "Papua": ["jayapura", "biak", "yapen", "waropen", "sarmi", "keerom", "merauke", "boven digoel", "mappi", "asmat", "nabire", "mimika", "paniai", "dogiyai", "intan jaya", "deiyai", "manokwari", "sorong", "raja ampat", "fakfak", "fak-fak", "kaimana", "bintuni", "wondama", "tambrauw", "maybrat", "arfak", "jayawijaya", "bintang", "yahukimo", "tolikara", "mamberamo", "yalimo", "lanny jaya", "nduga", "puncak"]
-                    }
-                    
-                    for provinsi, daftar_kota in kamus_wilayah.items():
-                        for kota in daftar_kota:
-                            if re.search(fr'\b{re.escape(kota)}\b', s): return provinsi
-                                
-                    if "prov." in s: return s.split("prov.")[1].strip().title()
-                    if "provinsi " in s: return s.split("provinsi ")[1].strip().title()
-                    return "Wilayah Belum Diset"
-
                 baris_mulai = 5
                 for indeks, d in enumerate(data_revisi):
                     baris = baris_mulai + indeks
@@ -414,7 +310,7 @@ if proses_btn:
                 output_excel.seek(0)
                 
                 st.balloons()
-                st.success(f"Sukses! Menemukan total {len(data_revisi)} baris selisih dari {len(uploaded_files)} PDF.")
+                st.success(f"Sukses! Menemukan total {len(data_revisi)} baris selisih.")
                 
                 col_dl1, col_dl2, col_dl3 = st.columns([1, 3, 1])
                 with col_dl2:
