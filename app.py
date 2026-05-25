@@ -151,7 +151,7 @@ if proses_btn:
                     with pdfplumber.open(file_pdf) as pdf:
                         satker_aktif = "Belum dapet Satker"
                         jenis_satker = "Daerah" 
-                        unit_org = ""  # Simpanan khusus Unit Organisasi
+                        unit_org = ""  
                         
                         for halaman in pdf.pages:
                             teks = halaman.extract_text()
@@ -165,7 +165,7 @@ if proses_btn:
                             for baris in baris_teks:
                                 baris_upper = baris.upper()
                                 
-                                # 1. TANGKAP UNIT ORGANISASI
+                                # 1. TANGKAP UNIT ORGANISASI (Bisa nangkap Ditjen dll)
                                 if "UNIT ORGANISASI" in baris_upper:
                                     pecah = re.split(r'(?i)UNIT\s*ORGANISASI', baris)
                                     nama_bersih = pecah[-1]
@@ -173,13 +173,12 @@ if proses_btn:
                                     nama_bersih = re.sub(r'^\(\w+\)\s*', '', nama_bersih)
                                     unit_org = re.sub(r'^\d+[\s\.\-]*', '', nama_bersih).strip()
                                     
-                                    # Langsung pasang sementara kalau masih kosong atau isinya generik
                                     if satker_aktif == "Belum dapet Satker" or "KEMENTERIAN" in satker_aktif.upper():
                                         satker_aktif = unit_org
                                         jenis_satker = "Pusat"
                                     continue
 
-                                # 2. TANGKAP SATUAN KERJA 
+                                # 2. TANGKAP SATUAN KERJA (Dengan proteksi anti-Kementerian)
                                 elif "SATUAN KERJA" in baris_upper or "SATKER" in baris_upper:
                                     pecah = re.split(r'(?i)SATUAN\s*KERJA|SATKER', baris)
                                     nama_bersih = pecah[-1]
@@ -188,8 +187,7 @@ if proses_btn:
                                     nama_bersih = re.sub(r'^\d+[\s\.\-]*', '', nama_bersih).strip()
                                     
                                     if nama_bersih:
-                                        # CEGAH TIMPANAN: Kalau isinya "Kementerian" dan kita udah punya Unit Org, ABAIKAN!
-                                        if "KEMENTERIAN" in nama_bersih.upper() and unit_org != "":
+                                        if ("KEMENTERIAN" in nama_bersih.upper() or "KEMEN" in nama_bersih.upper()) and unit_org != "":
                                             satker_aktif = unit_org
                                             jenis_satker = "Pusat"
                                         else:
@@ -200,7 +198,17 @@ if proses_btn:
                                                 jenis_satker = "Pusat"
                                     continue
 
-                                # 3. FALLBACK KHUSUS (Tanpa Label)
+                                # 3. JARING PENANGKAP DARURAT PUSAT (Kalau nggak ada tulisan Satker/Unit Org)
+                                elif any(kw in baris_upper for kw in ["DIREKTORAT", "DITJEN", "INSPEKTORAT", "SEKRETARIAT", "BADAN ", "BPSDM", "BIRO ", "STPN", "PUSAT"]):
+                                    # Pastikan bukan baris kementerian dan belum ada nama yang proper
+                                    if "KEMENTERIAN" not in baris_upper and (satker_aktif == "Belum dapet Satker" or "KEMENTERIAN" in satker_aktif.upper()):
+                                        nama_bersih = baris
+                                        nama_bersih = re.sub(r'^\d+[\s\.\-]*', '', nama_bersih)       
+                                        satker_aktif = nama_bersih.strip()
+                                        jenis_satker = "Pusat" 
+                                    continue
+
+                                # 4. JARING PENANGKAP DARURAT DAERAH (Kalau nggak ada tulisan Satker/Unit Org)
                                 elif any(kw in baris_upper for kw in ["KANTOR PERTANAHAN", "KANTAH", "KANTOR WILAYAH", "KANWIL"]):
                                     if satker_aktif == "Belum dapet Satker" or "KEMENTERIAN" in satker_aktif.upper() or jenis_satker == "Pusat":
                                         nama_bersih = baris
