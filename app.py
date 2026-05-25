@@ -5,7 +5,6 @@ import io
 import base64
 from openpyxl import Workbook
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
-# IMPORT KAMUS WILAYAH DARI FILE BERBEDA
 from wilayah import tentukan_wilayah
 
 # ==========================================
@@ -74,8 +73,19 @@ st.markdown(bg_css + """
     .subtitle-text {
         text-align: center;
         color: #475569;
-        margin-bottom: 2rem;
+        margin-bottom: 1rem;
         font-weight: 500;
+    }
+    .warning-text {
+        text-align: center;
+        color: #e11d48; /* Warna merah tegas elegan */
+        font-weight: 600;
+        font-size: 1rem;
+        margin-bottom: 2rem;
+        background-color: #fff1f2;
+        padding: 10px;
+        border-radius: 8px;
+        border: 1px solid #fecdd3;
     }
     div[data-testid="stFileUploadDropzone"] {
         background-color: #f8fafc;
@@ -117,6 +127,8 @@ with col_logo2:
 
 st.markdown('<div class="title-text">Automasi Reviu Revisi DIPA</div>', unsafe_allow_html=True)
 st.markdown('<div class="subtitle-text">Upload puluhan file PDF Matriks Perubahan sekaligus, sistem akan otomatis mengekstrak selisih KRO dan meng-generate Kertas Kerja Excel.</div>', unsafe_allow_html=True)
+# PENAMBAHAN TULISAN PERINGATAN FORMAT PDF
+st.markdown('<div class="warning-text">⚠️ Hanya untuk file PDF matriks perubahan format 1 yang bukan hasil scan</div>', unsafe_allow_html=True)
 
 # ==========================================
 # LOGIKA UTAMA APLIKASI
